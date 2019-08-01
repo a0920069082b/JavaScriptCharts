@@ -1,9 +1,11 @@
 window.onload = function () {
-    BeginCanvas(10);
+    const Data = [10, 15, 20, 67, 68, 90, 99, 22, 49, 35];
+    const MaxNum = Math.ceil(Math.max(...Data) / 10) * 10;//最大數值
+    BeginCanvas(Data, MaxNum);
 }
 
 //開始繪製Charts
-function BeginCanvas(DataCount) {
+function BeginCanvas(Data, MaxNum) {
     const Charts = document.getElementById("Charts");
     const ctx = Charts.getContext("2d");
     const cvWidth = 800; //Canvas的寬度
@@ -12,7 +14,8 @@ function BeginCanvas(DataCount) {
     const cvYStart = 50; //Y座標的起點
     const cvXEnd = cvXStart + cvWidth; //X座標的終點
     const cvYEnd = cvYStart + cvHeight; //Y座標的終點
-    const MaxNum = 100; //最大數值
+    let YEndScale = 0;
+
     //Canvas初始化
     ctx.beginPath();
 
@@ -24,10 +27,13 @@ function BeginCanvas(DataCount) {
     ctx.lineTo(cvXEnd, cvYEnd); //結束位置 (x，y)
 
     //繪製X軸刻度
-    XScale(ctx, DataCount, DataCount, cvXStart, cvYEnd, cvWidth);
+    XScale(ctx, Data.length, Data.length, cvXStart, cvYEnd, cvWidth);
 
     //繪製Y軸刻度
-    YScale(ctx, MaxNum, DataCount, DataCount, cvYEnd, cvXStart, cvHeight);
+    YEndScale = YScale(ctx, MaxNum, Data.length, Data.length, cvYEnd, cvXStart, cvHeight, 0);
+
+    //繪製資料
+    DrawBarChart(ctx, Data.length, Data, MaxNum, cvXStart, cvWidth, cvYEnd, YEndScale);
 
     //開始繪製
     ctx.stroke();
@@ -39,7 +45,6 @@ function XScale(ctx, RunCount, ScaleCount, XStart, YCenter, XWidth) {
     if (RunCount >= 0) {
         //計算起始位置
         Start = XStart + ((XWidth - 50) / ScaleCount) * (ScaleCount - RunCount);
-        console.log(Start);
 
         //圖表刻度
         ctx.moveTo(Start, YCenter + 10); //起始位置 (x，y)
@@ -57,8 +62,7 @@ function XScale(ctx, RunCount, ScaleCount, XStart, YCenter, XWidth) {
 }
 
 //繪製Y軸刻度
-function YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight) {
-    let Start = 0; //計算起始位置
+function YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight, Start) {
     let Data = 0;
     if (RunCount >= 0) {
         //計算資料數值
@@ -74,9 +78,40 @@ function YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight) {
         ctx.fillText(Data, XCenter - 40, Start);
 
         RunCount--;
-        YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight);
+        return YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight, Start);
+    } else {
+        return Start;
+    }
+}
+
+function DrawBarChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight) {
+
+    let Start = 0;
+    let BarHeight = 0;
+    let BarWidth = 0;
+    const DataCount = Data.length;
+    if (RunCount > 0) {
+        //計算起始位置
+        Start = XStart + ((XWidth - 50) / DataCount) * (DataCount - (RunCount - 1));
+
+        //計算高度
+        BarHeight = cvYEnd - (Data[DataCount - RunCount] / MaxNum) * (cvYEnd - cvHeight);
+
+        //計算寬度
+        BarWidth = (XWidth / 2) / DataCount;
+
+        //繪製長條圖
+        ctx.fillStyle = '#9f9'
+        ctx.fillRect(Start - (BarWidth / 2), BarHeight, BarWidth, (cvYEnd - BarHeight)); //x, y, width, height
+       
+        //顯示資料
+        ctx.font = "15px Arial";
+        ctx.fillStyle = "#000";
+        ctx.fillText(Data[DataCount - RunCount], Start - 10, BarHeight - 10);
+
+        RunCount--;
+        DrawBarChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight);
     } else {
         return;
     }
-
 }
