@@ -16,8 +16,8 @@ window.onload = function () {
         },
         series: {
             Ydata: [10, 15, 20, 67, 68, 90, 99, 22, 49, 35],
-            Xdata: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
-            StyleColor: ['#800000', '#FF3333', '#A0522D', '#FF7744', '#FFFF77', '#66FF66', '#0066FF', '#003377', '#9932CC', '#B088FF']
+            Xdata: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+            //StyleColor: ['#800000', '#FF3333', '#A0522D', '#FF7744', '#FFFF77', '#66FF66', '#0066FF', '#003377', '#9932CC', '#B088FF']
         }
     };
 
@@ -38,6 +38,7 @@ function BeginCanvas(Data) {
     const MaxNum = Math.ceil(Math.max(...Data.series.Ydata) / 10) * 10;//最大數值
     let YEndScale = 0;
 
+    ctx.clearRect(0, 0, Charts.width, Charts.height);
     //Canvas初始化
     ctx.beginPath();
 
@@ -58,6 +59,13 @@ function BeginCanvas(Data) {
     //繪製Y軸刻度
     YEndScale = YScale(ctx, MaxNum, DataCount, DataCount, cvYEnd, cvXStart, cvHeight, 0);
 
+    //開始繪製
+    ctx.stroke();
+    ctx.closePath();
+
+    //Canvas初始化
+    ctx.beginPath();
+
     //X軸標題
     ctx.font = '16px Arial';
     ctx.fillText(Data.xAxis.text, cvXStart + 400, cvYEnd + 50);
@@ -71,12 +79,14 @@ function BeginCanvas(Data) {
         ctx.fillText(YText[i], cvXStart - 70, cvYStart + 250 + 20 * i);
     }
 
-    //繪製資料
-    DrawBarChart(ctx, DataCount, Data.series, MaxNum, cvXStart, cvWidth, cvYEnd, YEndScale);
-
     //開始繪製
     ctx.stroke();
+    ctx.closePath();
 
+    if (Data.charts.type == 'Bar')
+        DrawBarChart(ctx, DataCount, Data.series, MaxNum, cvXStart, cvWidth, cvYEnd, YEndScale); //繪製長條圖
+    else if (Data.charts.type == 'Line')
+        DrawLineChart(ctx, DataCount, Data.series, MaxNum, cvXStart, cvWidth, cvYEnd, YEndScale); //繪製折線圖  
 }
 
 //繪製X軸刻度
@@ -127,12 +137,16 @@ function YScale(ctx, MaxNum, RunCount, ScaleCount, YStart, XCenter, Yheight, Sta
     }
 }
 
+//繪製長條圖
 function DrawBarChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight) {
     let Start = 0;
     let BarHeight = 0;
     let BarWidth = 0;
     const DataCount = Data.Ydata.length;
     if (RunCount > 0) {
+        //Canvas初始化
+        ctx.beginPath();
+
         //計算起始位置
         Start = XStart + ((XWidth - 50) / DataCount) * (DataCount - (RunCount - 1));
 
@@ -153,11 +167,67 @@ function DrawBarChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHei
 
         RunCount--;
         DrawBarChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight);
+        //開始繪製
+        ctx.stroke();
+        ctx.closePath();
     } else {
         return;
     }
 }
 
-function DrawLineChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight){
+//繪製折線圖
+function DrawLineChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight) {
+    let X_Start = 0;
+    let X_End = 0;
+    let Y_Start = 0;
+    let Y_End = 0;
+    let BarWidth = 0;
+    const DataCount = Data.Ydata.length;
+    if (RunCount > 0) {
+        //計算起始位置
+        X_Start = XStart + ((XWidth - 50) / DataCount) * (DataCount - (RunCount - 1));
+        X_End = XStart + ((XWidth - 50) / DataCount) * (DataCount - (RunCount - 2));
 
+        //計算高度
+        Y_Start = cvYEnd - (Data.Ydata[DataCount - RunCount] / MaxNum) * (cvYEnd - cvHeight);
+        Y_End = cvYEnd - (Data.Ydata[DataCount - (RunCount - 1)] / MaxNum) * (cvYEnd - cvHeight);
+
+        //計算寬度
+        BarWidth = (XWidth / 2) / DataCount;
+
+        //Canvas初始化
+        ctx.beginPath();
+
+        //繪製折線圖
+        ctx.strokeStyle = '#59F';
+        ctx.lineWidth = 2.5;
+        ctx.moveTo(X_Start, Y_Start);
+        ctx.lineTo(X_End, Y_End);
+
+        //開始繪製
+        ctx.stroke();
+        ctx.closePath();
+
+        //Canvas初始化
+        ctx.beginPath();
+
+        //繪製圓點
+        ctx.arc(X_Start, Y_Start, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#59F';
+        ctx.fill();
+
+        //顯示資料
+        ctx.font = '15px Arial';
+        ctx.fillStyle = '#000';
+        ctx.fillText(Data.Ydata[DataCount - RunCount], X_Start, Y_Start - 30);
+
+        //開始繪製
+        ctx.stroke();
+        ctx.closePath();
+
+        RunCount--;
+        DrawLineChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHeight);
+    } else {
+        return;
+    }
 }
