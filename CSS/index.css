@@ -11,7 +11,10 @@ body {
     width: 100%;
 }
 
+#ChartsChange{
+    margin: 5px 0px 0px 0px;
+}
 #Charts {
-    margin: 20px 0px 0px 0px;
+    margin: 5px 0px 0px 0px;
     border: 1px solid #000;
 }

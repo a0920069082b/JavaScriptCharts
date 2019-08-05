@@ -22,6 +22,32 @@ window.onload = function () {
     };
 
     BeginCanvas(Data);
+
+    document.getElementById('ChartsChange').addEventListener('change',function(){
+        const Data = {
+            charts: {
+                type: this.value, //Bar 長條圖 , Line 折線圖 ， Pie 圓餅圖
+                width: 800,
+                height: 500
+            },
+            title: {
+                text: '身高長條圖'
+            },
+            yAxis: {
+                text: '身高'
+            },
+            xAxis: {
+                text: '人'
+            },
+            series: {
+                Ydata: [30, 40, 20, 67, 68, 40, 99, 22, 49, 35, 80, 90],
+                Xdata: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+                StyleColor: ['#800000', '#FF3333', '#A0522D', '#FF7744', '#FFFF77', '#66FF66', '#0066FF', '#003377', '#9932CC', '#DC143C', '#5555FF', '#FF5511']
+            }
+        };
+    
+        BeginCanvas(Data);
+    });
 }
 
 //開始繪製Charts
@@ -283,7 +309,6 @@ function DrawLineChart(ctx, RunCount, Data, MaxNum, XStart, XWidth, cvYEnd, cvHe
 function DrawPieChart(Charts, ctx, Data, DataSum, StartPoint, RunCount, DataCount) {
     if (RunCount > 0) {
         const ValuePoint = Data.Ydata[DataCount - RunCount] / DataSum * 360 * Math.PI / 180;
-        console.log(ValuePoint);
         const EndPoint = StartPoint + ValuePoint;
 
         //開始繪圖路徑
