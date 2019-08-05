@@ -6,7 +6,7 @@ window.onload = function () {
             height: 500
         },
         title: {
-            text: '身高長條圖'
+            text: '長條圖'
         },
         yAxis: {
             text: '身高'
@@ -31,7 +31,7 @@ window.onload = function () {
                 height: 500
             },
             title: {
-                text: '身高長條圖'
+                text: this[this.selectedIndex].text
             },
             yAxis: {
                 text: '身高'
@@ -83,6 +83,9 @@ function BeginCanvas(Data) {
 
         //開始繪圖路徑
         ctx.beginPath();
+
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
 
         //圖表框線(Y軸)
         ctx.moveTo(cvXStart, cvYStart); //起始位置 (x，y)
